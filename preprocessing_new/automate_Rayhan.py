@@ -37,7 +37,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     # Convert TotalCharges to numeric, coetcing invalid values to NaN
     data['TotalCharges'] = pd.to_numeric(data['TotalCharges'], errors='coerce')
 
-    # Fill missing TotalCharges with media value
+    # Fill missing TotalCharges with median value
     data['TotalCharges'] = data['TotalCharges'].fillna(data['TotalCharges'].median())
 
     # Encode binary target variable
@@ -47,20 +47,20 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     })
 
     # Identify categorical and numerical columns
-    cat_colls = data.select_dtypes(include=['object']).columns.to_list()
-    num_colls = data.select_dtypes(include=[np.number]).columns.to_list()
-    num_colls.remove('Churn') # Exclude target from scaling
+    cat_cols = data.select_dtypes(include=['object']).columns.to_list()
+    num_cols = data.select_dtypes(include=[np.number]).columns.to_list()
+    num_cols.remove('Churn') # Exclude target from scaling
 
     # Label encode categorical columns
     label_encoders: dict[str, LabelEncoder] = {}
-    for col in cat_colls:
+    for col in cat_cols:
         encoder = LabelEncoder()
         data[col] = encoder.fit_transform(data[col])
         label_encoders[col] = encoder
 
     # Standarize numerical columns
     scaler = StandardScaler()
-    data[num_colls] = scaler.fit_transform(data[num_colls])
+    data[num_cols] = scaler.fit_transform(data[num_cols])
 
     print(f'Preprocessed data shape: {data.shape}')
     return data
